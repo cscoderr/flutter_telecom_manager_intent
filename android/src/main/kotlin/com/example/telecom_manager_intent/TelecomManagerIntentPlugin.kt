@@ -22,11 +22,12 @@ class TelecomManagerIntentPlugin: FlutterPlugin, ActivityAware {
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, channelId)
-    handler = MethodCallHandlerImpl(flutterPluginBinding.applicationContext, null)
+    handler = MethodCallHandlerImpl(flutterPluginBinding.applicationContext, null, channel)
     channel.setMethodCallHandler(handler)
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+    handler?.setActivity(null)
     channel.setMethodCallHandler(null)
   }
 
@@ -35,7 +36,7 @@ class TelecomManagerIntentPlugin: FlutterPlugin, ActivityAware {
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
-    handler?.setActivity(null)
+    onDetachedFromActivity()
   }
 
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
@@ -43,6 +44,6 @@ class TelecomManagerIntentPlugin: FlutterPlugin, ActivityAware {
   }
 
   override fun onDetachedFromActivity() {
-    ///
+    handler?.setActivity(null)
   }
 }
