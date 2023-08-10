@@ -9,6 +9,12 @@ class MockTelecomManagerIntentPlatform
     implements TelecomManagerIntentPlatform {
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
+
+  @override
+  Future<void> defaultDialer() {
+    // TODO: implement defaultDialer
+    throw UnimplementedError();
+  }
 }
 
 void main() {
