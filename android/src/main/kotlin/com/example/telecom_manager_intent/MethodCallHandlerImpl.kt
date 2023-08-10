@@ -1,18 +1,23 @@
 package com.example.telecom_manager_intent
 
 import android.app.Activity
+import android.app.PendingIntent.getActivity
 import android.content.Context
+import android.content.Context.TELECOM_SERVICE
 import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.telecom.TelecomManager
 import androidx.annotation.RequiresApi
+import android.widget.Toast;
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startActivity
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.util.ViewUtils.getActivity
+import androidx.core.app.ActivityCompat.startActivityForResult;
 
 
 internal class MethodCallHandlerImpl(context: Context, activity: Activity?): MethodCallHandler {
@@ -49,9 +54,15 @@ internal class MethodCallHandlerImpl(context: Context, activity: Activity?): Met
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun defaultDialer() {
+//        val telecomManager = getActivity(this.context!!)!!.getSystemService(TELECOM_SERVICE) as TelecomManager
+        val packageName = this.context!!.getPackageName();
+        Toast.makeText(this.context!!, packageName, Toast.LENGTH_SHORT).show()
+//        val isAlreadyDefaultDialer = packageName == telecomManager.defaultDialerPackage
+//        if (isAlreadyDefaultDialer) return
         val intent = Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER)
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, getActivity(this.context!!)?.packageName)
-        startActivity(this.context!!, intent, Bundle.EMPTY)
+        intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName)
+        Toast.makeText(this.context!!, packageName, Toast.LENGTH_SHORT).show()
+        startActivityForResult(this.activity!!, intent, MethodCallHandlerImpl.REQUEST_CODE_SET_DEFAULT_DIALER, null)
     }
 }
