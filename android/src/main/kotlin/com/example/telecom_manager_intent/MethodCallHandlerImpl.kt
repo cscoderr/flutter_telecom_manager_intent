@@ -14,7 +14,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.util.ViewUtils.getActivity
 
 
-class MethodCallHandlerImpl(context: Context): MethodCallHandler {
+internal class MethodCallHandlerImpl(context: Context): MethodCallHandler {
 
     private var context: Context?
 
@@ -28,23 +28,21 @@ class MethodCallHandlerImpl(context: Context): MethodCallHandler {
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        val actionArg = call.argument<String>("action")
-        val action = actionArg?.let { getAction(it) }
-        when(call.method) {
-            "start" -> {
-                val intent = Intent(action)
-                intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, getActivity(this.context!!)?.packageName)
-                startActivity(this.context!!, intent, Bundle.EMPTY)
+        try {
+            when(call.method) {
+                "defaultDailer" -> defaultDialer()
+                else -> result.notImplemented()
             }
+        } catch (e: Exception) {
+            result.error(logTag, null, e.toString())
         }
 
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun getAction(action: String) : String {
-       return when(action) {
-            "action_change_default_dialer" -> TelecomManager.ACTION_CHANGE_DEFAULT_DIALER
-           else -> ""
-        }
+    fun defaultDialer() {
+        val intent = Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER)
+        intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, getActivity(this.context!!)?.packageName)
+        startActivity(this.context!!, intent, Bundle.EMPTY)
     }
 }

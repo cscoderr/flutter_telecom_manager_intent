@@ -10,8 +10,7 @@ class MethodChannelTelecomManagerIntent extends TelecomManagerIntentPlatform {
   final methodChannel = const MethodChannel('telecom_manager_intent');
 
   @override
-  Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
-    return version;
+  Future<void> defaultDialer() async {
+    return methodChannel.invokeMethod('defaultDialer');
   }
 }

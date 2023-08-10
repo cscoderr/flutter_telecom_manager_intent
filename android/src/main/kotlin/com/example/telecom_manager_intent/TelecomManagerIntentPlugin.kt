@@ -16,9 +16,10 @@ class TelecomManagerIntentPlugin: FlutterPlugin, MethodCallHandler {
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
   private var handler: MethodCallHandlerImpl? = null
+  private val channelId = "telecom_manager_intent"
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "telecom_manager_intent")
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, channelId)
     handler = MethodCallHandlerImpl(context = flutterPluginBinding.applicationContext)
     channel.setMethodCallHandler(handler)
   }

@@ -8,7 +8,8 @@ abstract class TelecomManagerIntentPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static TelecomManagerIntentPlatform _instance = MethodChannelTelecomManagerIntent();
+  static TelecomManagerIntentPlatform _instance =
+      MethodChannelTelecomManagerIntent();
 
   /// The default instance of [TelecomManagerIntentPlatform] to use.
   ///
@@ -23,7 +24,7 @@ abstract class TelecomManagerIntentPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+  Future<void> defaultDialer() {
+    throw UnimplementedError('defaultDailer() has not been implemented.');
   }
 }
