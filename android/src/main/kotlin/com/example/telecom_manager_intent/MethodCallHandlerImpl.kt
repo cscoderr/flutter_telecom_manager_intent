@@ -56,7 +56,7 @@ internal class MethodCallHandlerImpl(context: Context, activity: Activity?): Met
     fun defaultDialer() {
 //        val telecomManager = getActivity(this.context!!)!!.getSystemService(TELECOM_SERVICE) as TelecomManager
         val packageName = this.context!!.getPackageName();
-        Toast.makeText(this.context!!, packageName, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this.context!!, "here", Toast.LENGTH_SHORT).show()
 //        val isAlreadyDefaultDialer = packageName == telecomManager.defaultDialerPackage
 //        if (isAlreadyDefaultDialer) return
         val intent = Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER)
@@ -64,5 +64,6 @@ internal class MethodCallHandlerImpl(context: Context, activity: Activity?): Met
         intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName)
         Toast.makeText(this.context!!, packageName, Toast.LENGTH_SHORT).show()
         startActivityForResult(this.activity!!, intent, MethodCallHandlerImpl.REQUEST_CODE_SET_DEFAULT_DIALER, null)
+        Toast.makeText(this.context!!, "end", Toast.LENGTH_SHORT).show()
     }
 }
