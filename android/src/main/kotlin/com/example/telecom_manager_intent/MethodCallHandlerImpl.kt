@@ -49,12 +49,23 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
         try {
             when(call.method) {
                 "defaultDialer" -> defaultDialer(result)
+                "hasDialerPermission" -> {
+                   val response =  hasDialerPermission()
+                    result.success(response)
+                }
                 else -> result.notImplemented()
             }
         } catch (e: Exception) {
             result.error(logTag, null, e.toString())
         }
 
+    }
+
+    fun hasDialerPermission() : Boolean {
+        val telecomManager = this.activity!!.getSystemService(TELECOM_SERVICE) as TelecomManager
+        val packageName = this.activity!!.getPackageName();
+        val isAlreadyDefaultDialer = packageName == telecomManager.defaultDialerPackage
+        return isAlreadyDefaultDialer
     }
 
     @TargetApi(Build.VERSION_CODES.M)
