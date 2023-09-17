@@ -70,10 +70,7 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
 
     @TargetApi(Build.VERSION_CODES.M)
     fun defaultDialer(result: MethodChannel.Result) {
-        val telecomManager = this.activity!!.getSystemService(TELECOM_SERVICE) as TelecomManager
-        val packageName = this.activity!!.getPackageName();
-        val isAlreadyDefaultDialer = packageName == telecomManager.defaultDialerPackage
-        if (isAlreadyDefaultDialer) return
+        if (isDefaultDialer()) return
         val packageManager = this.activity!!.getPackageManager();
         Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER).putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName).apply {
             if(resolveActivity(packageManager) != null) {
@@ -89,6 +86,7 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
                     activity!!.startActivityForResult(this, REQUEST_CODE_SET_DEFAULT_DIALER)
                 }
             } else {
+                // result.error()
                 Log.w("TelecomManagerIntent", "No Intent available to handle action");
             }
         }
