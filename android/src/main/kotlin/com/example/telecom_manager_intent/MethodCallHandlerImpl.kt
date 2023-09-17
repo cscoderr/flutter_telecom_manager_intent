@@ -61,7 +61,6 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
 
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
     private fun getPackageName(): String {
         val packageName = this.activity!!.getPackageName();
         return packageName
@@ -75,7 +74,6 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
         return isAlreadyDefaultDialer
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
     fun defaultDialer(result: MethodChannel.Result) {
         if (isDefaultDialer()) return
         val packageName = getPackageName()
