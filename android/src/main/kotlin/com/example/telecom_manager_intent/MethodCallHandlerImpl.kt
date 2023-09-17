@@ -61,9 +61,16 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
 
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
+    private fun getPackageName(): String {
+        val packageName = this.activity!!.getPackageName();
+        return packageName
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
     fun isDefaultDialer() : Boolean {
         val telecomManager = this.activity!!.getSystemService(TELECOM_SERVICE) as TelecomManager
-        val packageName = this.activity!!.getPackageName();
+        val packageName = getPackageName()
         val isAlreadyDefaultDialer = packageName == telecomManager.defaultDialerPackage
         return isAlreadyDefaultDialer
     }
@@ -71,6 +78,7 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
     @TargetApi(Build.VERSION_CODES.M)
     fun defaultDialer(result: MethodChannel.Result) {
         if (isDefaultDialer()) return
+        val packageName = getPackageName()
         val packageManager = this.activity!!.getPackageManager();
         Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER).putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName).apply {
             if(resolveActivity(packageManager) != null) {
@@ -81,7 +89,7 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
                             roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER),
                             REQUEST_CODE_SET_DEFAULT_DIALER
                         )
-                    }
+                    } else {}
                 } else {
                     activity!!.startActivityForResult(this, REQUEST_CODE_SET_DEFAULT_DIALER)
                 }
