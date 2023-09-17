@@ -5,7 +5,7 @@ class TelecomManagerIntent {
     return TelecomManagerIntentPlatform.instance.defaultDialer();
   }
 
-  Future<void> isDefaultDialer() {
+  Future<bool> isDefaultDialer() {
     return TelecomManagerIntentPlatform.instance.isDefaultDialer();
   }
 }
