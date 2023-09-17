@@ -49,8 +49,8 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
         try {
             when(call.method) {
                 "defaultDialer" -> defaultDialer(result)
-                "hasDialerPermission" -> {
-                   val response =  hasDialerPermission()
+                "isDefaultDialer" -> {
+                   val response =  isDefaultDialer()
                     result.success(response)
                 }
                 else -> result.notImplemented()
@@ -61,7 +61,7 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
 
     }
 
-    fun hasDialerPermission() : Boolean {
+    fun isDefaultDialer() : Boolean {
         val telecomManager = this.activity!!.getSystemService(TELECOM_SERVICE) as TelecomManager
         val packageName = this.activity!!.getPackageName();
         val isAlreadyDefaultDialer = packageName == telecomManager.defaultDialerPackage

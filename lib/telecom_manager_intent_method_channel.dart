@@ -13,4 +13,10 @@ class MethodChannelTelecomManagerIntent extends TelecomManagerIntentPlatform {
   Future<void> defaultDialer() async {
     return methodChannel.invokeMethod('defaultDialer');
   }
+
+  @override
+  Future<bool> isDefaultDialer() async {
+    final isDefaultDialer = await methodChannel.invokeMethod('isDefaultDialer');
+    return isDefaultDialer;
+  }
 }
