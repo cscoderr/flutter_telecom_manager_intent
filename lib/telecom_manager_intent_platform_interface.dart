@@ -31,4 +31,12 @@ abstract class TelecomManagerIntentPlatform extends PlatformInterface {
   Future<bool> isDefaultDialer() {
     throw UnimplementedError('isDefaultDialer() has not been implemented.');
   }
+
+  Future<bool> isDefaultSms() {
+    throw UnimplementedError('isDefaultSms() has not been implemented.');
+  }
+
+  Future<void> defaultSms() {
+    throw UnimplementedError('defaultSms() has not been implemented.');
+  }
 }

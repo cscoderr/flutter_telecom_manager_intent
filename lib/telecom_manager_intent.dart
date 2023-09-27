@@ -8,4 +8,12 @@ class TelecomManagerIntent {
   Future<bool> isDefaultDialer() {
     return TelecomManagerIntentPlatform.instance.isDefaultDialer();
   }
+
+  Future<void> defaultSmsAction() {
+    return TelecomManagerIntentPlatform.instance.defaultSms();
+  }
+
+  Future<bool> isDefaultSms() {
+    return TelecomManagerIntentPlatform.instance.isDefaultSms();
+  }
 }
