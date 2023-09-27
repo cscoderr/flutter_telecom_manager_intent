@@ -10,6 +10,7 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.provider.Telephony
 import android.telecom.TelecomManager
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -49,12 +50,22 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         try {
             when(call.method) {
-                "defaultDialer" -> defaultDialer(result)
+                "defaultDialer" -> {
+                    defaultDialer()
+                    result.success(null)
+                }
                 "isDefaultDialer" -> {
                    val response =  isDefaultDialer()
                     result.success(response)
                 }
-                "defaultSms" -> defaultSms(result)
+                "defaultSms" -> {
+                    defaultSms()
+                    result.success(null)
+                }
+                "isDefaultSms" -> {
+                    val response = isDefaultSms()
+                    result.success(response)
+                }
                 else -> result.notImplemented()
             }
         } catch (e: Exception) {
@@ -76,11 +87,14 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
         return isAlreadyDefaultDialer
     }
 
-    fun defaultDialer(result: MethodChannel.Result) {
+    fun defaultDialer() {
         if (isDefaultDialer()) return
         val packageName = getPackageName()
         val packageManager = this.activity!!.getPackageManager();
-        Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER).putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName).apply {
+
+        Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER)
+            .putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName)
+            .apply {
             if(resolveActivity(packageManager) != null) {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     val roleManager: RoleManager? = activity!!.getSystemService(RoleManager::class.java)
@@ -89,7 +103,9 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
                             roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER),
                             REQUEST_CODE_SET_DEFAULT_DIALER
                         )
-                    } else {}
+                    } else {
+                        Log.w("TelecomManagerIntent", "An error occur");
+                    }
                 } else {
                     activity!!.startActivityForResult(this, REQUEST_CODE_SET_DEFAULT_DIALER)
                 }
@@ -100,59 +116,44 @@ class MethodCallHandlerImpl(context: Context, activity: Activity?, methodChannel
         }
     }
 
-    fun defaultSms(result: MethodChannel.Result) {
-        if (isDefaultDialer()) return
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    fun isDefaultSms(): Boolean {
+        val telephony = Telephony.Sms.getDefaultSmsPackage(context)
         val packageName = getPackageName()
-        val packageManager = this.activity!!.getPackageManager();
-        if(resolveActivity(packageManager) != null) {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val roleManager: RoleManager? = activity!!.getSystemService(RoleManager::class.java)
-                if (roleManager?.isRoleAvailable(RoleManager.ROLE_SMS) == true) {
-                    if (roleManager?.isRoleHeld(RoleManager.ROLE_SMS) == true) {
-                        askSmsPermissions()
-                    } else {
-                        activity!!.startActivityForResult(
-                            roleManager.createRequestRoleIntent(RoleManager.ROLE_SMS),
-                            REQUEST_CODE_SET_DEFAULT_SMS
-                        )
-                    }
-                } else {
-                    Log.w("TelecomManagerIntent", "An error occur");
-                }
-            } else {
-                if (Telephony.Sms.getDefaultSmsPackage(this) == packageName) {
-                    askSmsPermissions()
-                } else {
-                    val intent = Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT)
-                    intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, packageName)
-                    activity!!.startActivityForResult(intent, REQUEST_CODE_SET_DEFAULT_SMS)
-                }
-            }
-        } else {
-            // result.error()
-            Log.w("TelecomManagerIntent", "No Intent available to handle action");
-        }
+        return packageName == telephony
     }
 
-    private fun askSmsPermissions() {
-        handlePermission(PERMISSION_READ_SMS) {
-            if (it) {
-                handlePermission(PERMISSION_SEND_SMS) {
-                    if (it) {
-                        handlePermission(PERMISSION_READ_CONTACTS) {
-                            initMessenger()
-                            bus = EventBus.getDefault()
-                            try {
-                                bus!!.register(this)
-                            } catch (e: Exception) {
-                            }
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    fun defaultSms() {
+        val packageName = getPackageName()
+        val packageManager = this.activity!!.getPackageManager();
+        Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT)
+            .putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, packageName)
+            .apply {
+            if(resolveActivity(packageManager) != null) {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val roleManager: RoleManager? = activity!!.getSystemService(RoleManager::class.java)
+                    if (roleManager?.isRoleAvailable(RoleManager.ROLE_SMS) == true) {
+                        if (roleManager?.isRoleHeld(RoleManager.ROLE_SMS) == true) {
+                            Log.w("TelecomManagerIntent", "No Permission");
+                            TODO("Handle permission later")
+                        } else {
+                            activity!!.startActivityForResult(
+                                roleManager.createRequestRoleIntent(RoleManager.ROLE_SMS),
+                                REQUEST_CODE_SET_DEFAULT_SMS
+                            )
                         }
                     } else {
-                        finish()
+                        Log.w("TelecomManagerIntent", "An error occur");
+                    }
+                } else {
+                    if(!isDefaultSms()) {
+                        activity!!.startActivityForResult(this, REQUEST_CODE_SET_DEFAULT_SMS)
                     }
                 }
             } else {
-                finish()
+                // result.error()
+                Log.w("TelecomManagerIntent", "No Intent available to handle action");
             }
         }
     }
